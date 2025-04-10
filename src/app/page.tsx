@@ -1,103 +1,122 @@
-import Image from "next/image";
+"use client"
+
+import { useState, useEffect } from "react"
+import KoreanKeyboard from "@/components/korean-keyboard"
+import WordDisplay from "@/components/word-display"
+import Timer from "@/components/timer"
+import AppBar from "./components/app-bar"
+import { getRandomWord } from "@/lib/words"
+import { HangulComposer } from "@/lib/hangul-utils"
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentWord, setCurrentWord] = useState("")
+  const [userInput, setUserInput] = useState("")
+  const [isCompleted, setIsCompleted] = useState(false)
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [completionTime, setCompletionTime] = useState<number | null>(null)
+  const [hangulComposer] = useState(() => new HangulComposer())
+  const [resetKeyboardMode, setResetKeyboardMode] = useState(false)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    // Initialize with a random word
+    setCurrentWord(getRandomWord())
+  }, [])
+
+  const handleKeyPress = (char: string) => {
+    // Start timer on first key press
+    if (!timerRunning && !isCompleted) {
+      console.log("Starting timer")
+      setTimerRunning(true)
+    }
+
+    let newInput = ""
+
+    if (char === "⌫") {
+      // Backspace
+      newInput = hangulComposer.backspace()
+    } else {
+      // Regular character input
+      newInput = hangulComposer.input(char)
+    }
+
+    setUserInput(newInput)
+
+    // Check if word is completed
+    if (newInput === currentWord) {
+      console.log("Word completed")
+      setIsCompleted(true)
+      setTimerRunning(false)
+    }
+  }
+
+  const handleConfirm = () => {
+    if (isCompleted) {
+      // When completed, move to next word
+      handleNextWord()
+    } else {
+      // When not completed, finalize current input (if needed)
+      const finalizedInput = hangulComposer.finalize()
+      setUserInput(finalizedInput)
+
+      // Check completion after finalization
+      if (finalizedInput === currentWord) {
+        console.log("Word completed after confirmation")
+        setIsCompleted(true)
+        setTimerRunning(false)
+      }
+    }
+  }
+
+  const handleNextWord = () => {
+    console.log("Moving to next word")
+    // Create new Hangul composer
+    const newComposer = new HangulComposer()
+    // Reset state
+    setCurrentWord(getRandomWord())
+    setUserInput("")
+    setIsCompleted(false)
+    setCompletionTime(null)
+    setTimerRunning(false)
+    // Reset keyboard to basic mode
+    setResetKeyboardMode(prev => !prev)
+    // Reset hangulComposer (can't replace with new instance, so just reset internal state)
+    Object.assign(hangulComposer, newComposer)
+  }
+
+  const handleTimerComplete = (time: number) => {
+    console.log("Timer completed with time:", time)
+    setCompletionTime(time)
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background fixed inset-0 overflow-hidden">
+      <AppBar />
+      <div className="w-full h-[calc(100%-3.5rem)] flex flex-col max-w-md mx-auto">
+        {/* Content area - scrollable if needed */}
+        <div className="flex-1 overflow-y-auto flex flex-col mb-2">
+          <div className="w-full bg-card rounded-lg shadow-sm pb-4 mb-auto">
+            <WordDisplay targetWord={currentWord} userInput={userInput} isCompleted={isCompleted} />
+
+            <Timer isRunning={timerRunning} onComplete={handleTimerComplete} isCompleted={isCompleted} />
+
+            {isCompleted && completionTime && (
+              <div className="mt-2 text-center">
+                <p className="text-green-600 font-bold">Completed! Time: {(completionTime / 1000).toFixed(2)}s</p>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Keyboard area - fixed at bottom */}
+        <div className="flex-none w-full mb-safe">
+          <KoreanKeyboard
+            onKeyPress={handleKeyPress}
+            onConfirm={handleConfirm}
+            isCompleted={isCompleted}
+            resetToBasicMode={resetKeyboardMode}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
