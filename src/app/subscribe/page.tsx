@@ -115,9 +115,27 @@ export default function SubscribePage() {
 
             {/* Single Subscribe button below the cards */}
             <div className="mt-8">
-              <Button className="w-full">
+              <Button
+                className="w-full"
+                onClick={() => {
+                  // Determine the SKU based on the selected plan
+                  const sku = selectedPlanId === 'monthly' ? 'monthly' : 'yearly'; // Replace with your actual SKUs
+
+                  // Check if the Flutter WebView bridge is available
+                  if (window.flutter_inappwebview) {
+                    // Send message to Flutter to initiate purchase
+                    window.flutter_inappwebview.postMessage(JSON.stringify({
+                      action: 'purchaseSubscription',
+                      sku: sku,
+                    }));
+                    console.log(`Sent purchase request for SKU: ${sku}`);
+                  } else {
+                    console.error('Flutter WebView bridge not found.');
+                    // Optionally, display an error message to the user
+                  }
+                }}
+              >
                 <CreditCard className="h-4 w-4 mr-2" />
-                {/* Button text updates based on the selected plan */}
                 Subscribe
               </Button>
             </div>
@@ -135,10 +153,10 @@ export default function SubscribePage() {
                 <CardTitle>Pro Plan</CardTitle>
                 <CardDescription>
                   <span className="text-2xl font-bold">
-                    {billingInterval === "monthly" ? "$1.99" : "$3.99"}
+                    {selectedPlanId === "monthly" ? "$1.99" : "$3.99"}
                   </span>
                   <span className="text-muted-foreground ml-1">
-                    /{billingInterval === "monthly" ? "month" : "year"}
+                    /{selectedPlanId === "monthly" ? "month" : "year"}
                   </span>
                 </CardDescription>
               </CardHeader>
@@ -146,7 +164,7 @@ export default function SubscribePage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Billing period</span>
-                    <span>{billingInterval === "monthly" ? "Monthly" : "Yearly"}</span>
+                    <span>{selectedPlanId === "monthly" ? "Monthly" : "Yearly"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Next payment</span>

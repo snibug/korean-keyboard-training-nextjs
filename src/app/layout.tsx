@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
 
 import './globals.css'
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
 
 
 export const metadata: Metadata = {

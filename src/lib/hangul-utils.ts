@@ -91,20 +91,6 @@ const COMPLEX_VOWELS: Record<string, string> = {
   ㅡㅣ: "ㅢ",
 }
 
-// 복합 자음 매핑
-const COMPLEX_CONSONANTS: Record<string, string> = {
-  ㄱㅅ: "ㄳ",
-  ㄴㅈ: "ㄵ",
-  ㄴㅎ: "ㄶ",
-  ㄹㄱ: "ㄺ",
-  ㄹㅁ: "ㄻ",
-  ㄹㅂ: "ㄼ",
-  ㄹㅅ: "ㄽ",
-  ㄹㅌ: "ㄾ",
-  ㄹㅍ: "ㄿ",
-  ㄹㅎ: "ㅀ",
-  ㅂㅅ: "ㅄ",
-}
 
 // 한글 자모 상태를 관리하는 클래스
 export class HangulComposer {

@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import KoreanKeyboard from "@/components/korean-keyboard"
-import WordDisplay from "@/components/word-display"
-import Timer from "@/components/timer"
+
 import AppBar from "./components/app-bar"
-import { getRandomWord } from "@/lib/words"
+import KoreanKeyboard from "@/components/korean-keyboard"
+import Timer from "@/components/timer"
+import WordDisplay from "@/components/word-display"
 import { HangulComposer } from "@/lib/hangul-utils"
+import { getRandomWord } from "@/lib/words"
 
 export default function Home() {
   const [currentWord, setCurrentWord] = useState("")

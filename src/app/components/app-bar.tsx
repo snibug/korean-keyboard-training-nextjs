@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
 
 const AppBar: React.FC = () => {
   return (
