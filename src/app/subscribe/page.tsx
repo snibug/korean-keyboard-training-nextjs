@@ -3,14 +3,20 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Check, ArrowLeft, CreditCard } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { useIsSubscribed } from '@/hooks/use-subscription';
+
+const SKU_MONTHLY = 'co.passyou.koreankeyboardtraining.subscription.month';
+const SKU_YEARLY = 'co.passyou.koreankeyboardtraining.subscription.year';
+
+const MONTHLY = 'MONTHLY';
 
 interface SubscriptionPlan {
-  id: 'monthly' | 'yearly'; // Plan identifiers
+  id: 'MONTHLY' | 'YEARLY'; // Plan identifiers
   name: string;
   price: string; // Simplified price structure
   billingCycle: 'month' | 'year'; // Added billing cycle info
@@ -20,14 +26,14 @@ interface SubscriptionPlan {
 
 export default function SubscribePage() {
   // Assume the user is always on the basic plan initially for this page's purpose
-  const currentPlan = "basic";
   // State to track the selected plan ID, default to 'monthly'
-  const [selectedPlanId, setSelectedPlanId] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedPlanId, setSelectedPlanId] = useState<'MONTHLY' | 'YEARLY'>(MONTHLY);
+  const [isSubscribed] = useIsSubscribed(); // Subscription status from Zustand store
 
   // Define Pro plans separately
   const proPlans: SubscriptionPlan[] = [
     {
-      id: "monthly",
+      id: "MONTHLY",
       name: "Pro Plan Monthly",
       price: "$1.99",
       billingCycle: "month",
@@ -37,7 +43,7 @@ export default function SubscribePage() {
       ],
     },
     {
-      id: "yearly",
+      id: "YEARLY",
       name: "Pro Plan Yearly",
       price: "$3.99", // Example yearly price
       billingCycle: "year",
@@ -73,7 +79,7 @@ export default function SubscribePage() {
         </div>
 
         {/* Always show Pro upgrade options if on basic plan */}
-        {currentPlan === "basic" && (
+        {!isSubscribed && (
           <>
             <div className="grid gap-4 mt-8">
               {proPlans.map((plan) => (
@@ -116,15 +122,12 @@ export default function SubscribePage() {
             {/* Single Subscribe button below the cards */}
             <div className="mt-8">
               <Button
-                className="w-full"
+                variant="outline"
+                className="w-full bg-blue-500 text-white"
                 onClick={() => {
-                  // Determine the SKU based on the selected plan
-                  const sku = selectedPlanId === 'monthly' ? 'monthly' : 'yearly'; // Replace with your actual SKUs
-
-                  // Check if the Flutter WebView bridge is available
+                  const sku = selectedPlanId === MONTHLY ? SKU_MONTHLY : SKU_YEARLY;
                   if (window.flutter_inappwebview) {
-                    // Send message to Flutter to initiate purchase
-                    window.flutter_inappwebview.postMessage(JSON.stringify({
+                    window.flutter_inappwebview.callHandler('flutterBridge', JSON.stringify({
                       action: 'purchaseSubscription',
                       sku: sku,
                     }));
@@ -142,9 +145,7 @@ export default function SubscribePage() {
           </>
         )}
 
-        {/* Section for users already subscribed to Pro - needs logic adjustment */}
-        {/* This part might need rework depending on how pro subscription state (monthly/yearly) is stored and passed */}
-        {currentPlan !== "basic" && ( // Simplified condition for demonstration
+        {isSubscribed && ( // Simplified condition for demonstration
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -153,10 +154,10 @@ export default function SubscribePage() {
                 <CardTitle>Pro Plan</CardTitle>
                 <CardDescription>
                   <span className="text-2xl font-bold">
-                    {selectedPlanId === "monthly" ? "$1.99" : "$3.99"}
+                    {selectedPlanId === MONTHLY ? "$1.99" : "$3.99"}
                   </span>
                   <span className="text-muted-foreground ml-1">
-                    /{selectedPlanId === "monthly" ? "month" : "year"}
+                    /{selectedPlanId === MONTHLY ? "month" : "year"}
                   </span>
                 </CardDescription>
               </CardHeader>
@@ -164,7 +165,7 @@ export default function SubscribePage() {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Billing period</span>
-                    <span>{selectedPlanId === "monthly" ? "Monthly" : "Yearly"}</span>
+                    <span>{selectedPlanId === MONTHLY ? "Monthly" : "Yearly"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Next payment</span>

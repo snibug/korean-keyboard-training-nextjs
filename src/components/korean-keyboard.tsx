@@ -12,10 +12,10 @@ interface KeyboardKey {
 }
 
 interface KoreanKeyboardProps {
-  onKeyPress: (char: string) => void
-  onConfirm: () => void
-  isCompleted: boolean
-  resetToBasicMode?: boolean
+  onKeyPress: (char: string) => void;
+  onConfirm: () => void;
+  isCompleted: boolean;
+  resetToBasicMode?: boolean;
 }
 
 const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, isCompleted, resetToBasicMode }) => {
@@ -62,12 +62,12 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
       { char: "ㅠ" },
       { char: "ㅜ" },
       { char: "ㅡ" },
-      { char: "⌫", width: 1.5, isSpecial: true },
+      { char: "DEL", width: 1.5, isSpecial: true }, // Use consistent internal key identifier
     ],
     [
-      { char: "쌍자음", width: 2.0, isSpecial: true },
+      { char: "SHIFT1", width: 2.0, isSpecial: true },
       { char: "space", width: 5, isSpecial: true },
-      { char: "확인", width: 2.0, isSpecial: true },
+      { char: "CONFIRM", width: 2.0, isSpecial: true },
     ],
   ]
 
@@ -104,12 +104,12 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
       { char: "ㅠ" },
       { char: "ㅜ" },
       { char: "ㅡ" },
-      { char: "⌫", width: 1.5, isSpecial: true },
+      { char: "DEL", width: 1.5, isSpecial: true }, // Use consistent internal key identifier
     ],
     [
-      { char: "기본", width: 2.0, isSpecial: true },
+      { char: "SHIFT2", width: 2.0, isSpecial: true },
       { char: "space", width: 5, isSpecial: true },
-      { char: "확인", width: 2.0, isSpecial: true },
+      { char: "CONFIRM", width: 2.0, isSpecial: true },
     ],
   ]
 
@@ -121,12 +121,23 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
     setShowDoubleConsonants(!showDoubleConsonants)
   }
 
+  const vibrate = () => {
+    if (!window.flutter_inappwebview) {
+      return;
+    }
+
+    window.flutter_inappwebview.callHandler("flutterBridge", JSON.stringify({
+      action: "vibrate",
+      type: 'light',
+    }));
+  }
+
   // 키 입력 처리
   const handleKeyClick = (key: string) => {
     setActiveKey(key)
 
     // 키보드 모드 전환 처리
-    if (key === "쌍자음" || key === "기본") {
+    if (key === "SHIFT1" || key === "SHIFT2") {
       toggleKeyboardMode()
       setTimeout(() => {
         setActiveKey(null)
@@ -135,7 +146,7 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
     }
 
     // 확인 버튼 처리
-    if (key === "확인") {
+    if (key === "CONFIRM") {
       onConfirm()
       setTimeout(() => {
         setActiveKey(null)
@@ -151,6 +162,7 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
 
     if (charToSend) {
       onKeyPress(charToSend)
+      vibrate()
     }
 
     // 시각적 피드백을 위한 지연
@@ -172,7 +184,7 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
             const width = key.width || 1.1
 
             // 확인 버튼 스타일 조정
-            const isConfirmButton = key.char === "확인"
+            const isConfirmButton = key.char === "CONFIRM"
             const confirmButtonStyle = isCompleted ? "bg-green-500 text-white" : ""
 
             return (
@@ -188,14 +200,23 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = ({ onKeyPress, onConfirm, 
                       : "bg-white text-gray-800",
                   key.isSpecial ? "text-xs font-medium" : "text-lg font-semibold",
                   key.char === " " ? "invisible" : "", // 빈 키는 보이지 않게 처리
+                  // Apply blue background if it's a SHIFT key and double consonants are shown (SHIFT2 mode)
+                  // This style is applied unless the key is actively being pressed (isActive is true)
+                  (key.char === 'SHIFT1' || key.char === 'SHIFT2') && showDoubleConsonants && !isActive ? "bg-blue-500 text-white" : "",
                 )}
                 style={{
                   width: `${width * 2}rem`,
-                  transform: isActive ? "scale(1.05)" : "scale(1)",
+                  transform: isActive ? "scale(1.1)" : "scale(1)",
                 }}
                 onClick={() => handleKeyClick(key.char)}
               >
-                {key.char === "space" ? "SPACE" : key.char === "확인" && isCompleted ? "NEXT" : key.char === "확인" ? "ENTER" : key.char === "쌍자음" ? "DOUBLE" : key.char === "기본" ? "BASIC" : key.char}
+                {/* Display logic for key text */}
+                {(() => {
+                  if (key.char === "space") return "SPACE";
+                  if (key.char === "CONFIRM") return isCompleted ? "NEXT" : "ENTER";
+                  if (key.char === "SHIFT1" || key.char === "SHIFT2") return "SHIFT";
+                  return key.char;
+                })()}
 
                 {/* 활성화된 키의 확대 표시 - 모바일에 최적화된 위치 */}
                 {isActive && !key.isSpecial && key.char !== " " && (
