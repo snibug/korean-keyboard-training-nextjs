@@ -200,6 +200,20 @@ export default function SubscribePage() {
             </div>
           </div>
         )}
+
+        {/* Terms and Privacy Policy Links and Agreement Text */}
+        <div className="mt-8 text-center text-xs text-muted-foreground">
+          <p className="mb-2">
+            By subscribing, you agree to our{' '}
+            <Link href="/terms-of-use" className="underline underline-offset-4 hover:text-primary">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy-policy" className="underline underline-offset-4 hover:text-primary">
+              Privacy Policy
+            </Link>.
+          </p>
+        </div>
       </main>
     </div>
   )
