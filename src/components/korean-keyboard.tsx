@@ -16,7 +16,6 @@ interface KoreanKeyboardProps {
   resetToBasicMode?: boolean;
 }
 
-// --- Keyboard Layouts (기본, 쌍자음) ---
 const defaultLayout: KeyboardKey[][] = [
   [{ char: "ㅂ" }, { char: "ㅈ" }, { char: "ㄷ" }, { char: "ㄱ" }, { char: "ㅅ" }, { char: "ㅛ" }, { char: "ㅕ" }, { char: "ㅑ" }, { char: "ㅐ" }, { char: "ㅔ" },],
   [{ char: "ㅁ" }, { char: "ㄴ" }, { char: "ㅇ" }, { char: "ㄹ" }, { char: "ㅎ" }, { char: "ㅗ" }, { char: "ㅓ" }, { char: "ㅏ" }, { char: "ㅣ" },],
@@ -42,6 +41,8 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [showDoubleConsonants, setShowDoubleConsonants] = useState(false);
   const isTouchingRef = useRef(false); // Track if a touch interaction is in progress
+  const lastMoveTimeRef = useRef(0); // Ref to store the timestamp of the last processed move event
+  const throttleInterval = 50; // Throttle interval in milliseconds (e.g., 50ms)
 
   const keyboardContainerRef = useRef<HTMLDivElement>(null); // Ref for the main container
 
@@ -80,14 +81,11 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
     }
   }, []);
 
-  // --- Touch Event Handlers ---
-
   // Called when touch starts *on a button*
   const handleTouchStart = useCallback((event: React.TouchEvent<HTMLButtonElement>) => {
     // event.preventDefault(); // Removed: Handled by touch-action CSS property
     if (isTouchingRef.current) return; // Ignore if already touching
     isTouchingRef.current = true;
-
 
     // Get the key from the button element that received the touchstart event
     const key = getKeyFromElement(event.currentTarget);
@@ -97,9 +95,16 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
     // No action (like key press) is taken here, only on touch end
   }, [getKeyFromElement]); // Depends on the helper function
 
-  // Called when touch moves *over the container*
+  // Called when touch moves *over the container*, throttled for performance
   const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     if (!isTouchingRef.current) return; // Only process if currently touching
+
+    const now = Date.now();
+    // Throttle the execution: Only run if enough time has passed since the last execution
+    if (now - lastMoveTimeRef.current < throttleInterval) {
+      return; // Skip execution if throttled
+    }
+    lastMoveTimeRef.current = now; // Update the last execution time
 
     // event.preventDefault(); // Removed: Handled by touch-action CSS property
 
@@ -114,7 +119,7 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
     // Update active key only if it has changed
     setActiveKey(prevActiveKey => key !== prevActiveKey ? key : prevActiveKey);
 
-  }, [getKeyFromElement]); // Depends on the helper function
+  }, [getKeyFromElement, throttleInterval]); // Add throttleInterval to dependencies
 
   // Called when touch ends *anywhere on the container*
   const handleTouchEnd = useCallback(() => {
@@ -134,14 +139,15 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
         const charToSend = keyToProcess === "space" ? " " : keyToProcess;
         onKeyPress(charToSend);
       }
-      vibrate(); // Haptic feedback
+
+      vibrate(); // Trigger vibration feedback
     }
 
     // Immediately deactivate the key visually
     setActiveKey(null);
 
     isTouchingRef.current = false; // Mark touch interaction as ended
-  }, [activeKey, onConfirm, onKeyPress, toggleKeyboardMode, vibrate]); // Dependencies include state and callbacks
+  }, [activeKey, onConfirm, onKeyPress, toggleKeyboardMode]); // Dependencies include state and callbacks
 
   // Called when touch is cancelled *anywhere on the container*
   const handleTouchCancel = useCallback(() => {

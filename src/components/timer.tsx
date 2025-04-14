@@ -26,7 +26,6 @@ const Timer: React.FC<TimerProps> = ({ isRunning, isCompleted, onComplete }) => 
         setElapsedTime(currentElapsed)
       }, 10)
 
-      console.log("Timer started/running")
     } else if (isCompleted && elapsedTime > 0) {
       // Stop timer and handle completion
       console.log("Timer completed with time:", elapsedTime)
@@ -64,9 +63,8 @@ const Timer: React.FC<TimerProps> = ({ isRunning, isCompleted, onComplete }) => 
     <div className="text-center my-2">
       <div className="text-sm text-gray-600 mb-1">Time</div>
       <div
-        className={`text-xl font-mono font-bold ${
-          isRunning ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-800"
-        }`}
+        className={`text-xl font-mono font-bold ${isRunning ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-800"
+          }`}
       >
         {formatTime(elapsedTime)}
       </div>

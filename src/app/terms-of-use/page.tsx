@@ -1,24 +1,8 @@
 "use client"
 
-import { useRouter } from 'next/navigation'; // Import useRouter
-import { ArrowLeft } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-
 export default function TermsOfUsePage() {
-  const router = useRouter()
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="flex items-center px-4 py-3 border-b h-14 bg-background/95 backdrop-blur">
-        {/* Use Button onClick to navigate back */}
-        <div className="flex items-center mr-auto">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-medium ml-2">Terms of Use</h1>
-        </div>
-      </header>
-
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold mb-6">Korean Typing Terms of Use</h1>
         <p className="text-sm text-gray-600 mb-8">Last Updated: [2025-04-01]</p>
