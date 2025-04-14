@@ -23,7 +23,6 @@ export default function AboutPage() {
             {/* Feature 1: Interactive Keyboard */}
             <div className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
               <h3 className="text-xl font-semibold mb-2 text-blue-600">Interactive Hangeul Keyboard</h3>
-              <p className="text-gray-700">Master Hangeul's unique character composition principles with our intuitive keyboard designed specifically for learners.</p>
             </div>
 
             {/* Feature 2: Word Typing Practice */}
