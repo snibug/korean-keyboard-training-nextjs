@@ -42,7 +42,7 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [showDoubleConsonants, setShowDoubleConsonants] = useState(false);
   const isTouchingRef = useRef(false); // Track if a touch interaction is in progress
-  const clearActiveKeyTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const keyboardContainerRef = useRef<HTMLDivElement>(null); // Ref for the main container
 
   // Reset to basic mode effect
@@ -84,15 +84,10 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
 
   // Called when touch starts *on a button*
   const handleTouchStart = useCallback((event: React.TouchEvent<HTMLButtonElement>) => {
-    event.preventDefault(); // Prevent default actions like text selection or zoom
+    // event.preventDefault(); // Removed: Handled by touch-action CSS property
     if (isTouchingRef.current) return; // Ignore if already touching
     isTouchingRef.current = true;
 
-    // Clear any pending visual reset timer
-    if (clearActiveKeyTimerRef.current) {
-      clearTimeout(clearActiveKeyTimerRef.current);
-      clearActiveKeyTimerRef.current = null;
-    }
 
     // Get the key from the button element that received the touchstart event
     const key = getKeyFromElement(event.currentTarget);
@@ -105,6 +100,8 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
   // Called when touch moves *over the container*
   const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     if (!isTouchingRef.current) return; // Only process if currently touching
+
+    // event.preventDefault(); // Removed: Handled by touch-action CSS property
 
     const touch = event.touches[0];
     if (!touch) return;
@@ -140,11 +137,8 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
       vibrate(); // Haptic feedback
     }
 
-    // Start timer to visually deactivate the key after a short delay
-    clearActiveKeyTimerRef.current = setTimeout(() => {
-      setActiveKey(null);
-      clearActiveKeyTimerRef.current = null;
-    }, 75);
+    // Immediately deactivate the key visually
+    setActiveKey(null);
 
     isTouchingRef.current = false; // Mark touch interaction as ended
   }, [activeKey, onConfirm, onKeyPress, toggleKeyboardMode, vibrate]); // Dependencies include state and callbacks
@@ -153,15 +147,8 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
   const handleTouchCancel = useCallback(() => {
     if (!isTouchingRef.current) return;
 
-    // Clear any pending visual reset timer
-    if (clearActiveKeyTimerRef.current) {
-      clearTimeout(clearActiveKeyTimerRef.current);
-    }
-    // Set a timer to visually deactivate the key
-    clearActiveKeyTimerRef.current = setTimeout(() => {
-      setActiveKey(null);
-      clearActiveKeyTimerRef.current = null;
-    }, 75);
+    // Immediately deactivate the key visually
+    setActiveKey(null);
 
     isTouchingRef.current = false; // Mark touch interaction as ended
   }, []); // No dependencies needed
@@ -170,7 +157,8 @@ const KoreanKeyboard: React.FC<KoreanKeyboardProps> = React.memo(({
   return (
     <div
       ref={keyboardContainerRef} // Add ref to the container
-      className="w-full bg-gray-100 rounded-t-lg p-2 select-none touch-manipulation"
+      className="w-full bg-gray-100 rounded-t-lg p-2 select-none" // Removed touch-manipulation class
+      style={{ touchAction: 'none' }} // Apply touch-action: none directly
       // Attach touch move, end, and cancel handlers to the container
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
