@@ -1,24 +1,24 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function TermsOfUsePage() {
+function TermsOfUseContent() {
   const searchParams = useSearchParams();
   const appNameFromQuery = searchParams.get('app_name');
   const APP_NAME = appNameFromQuery || "Type it! Korean";
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold mb-6">{APP_NAME} Terms of Use</h1>
-        <p className="text-sm text-gray-600 mb-8">Last Updated: [2025-04-01]</p>
+    <>
+      <h1 className="text-3xl font-bold mb-6">{APP_NAME} Terms of Use</h1>
+      <p className="text-sm text-gray-600 mb-8">Last Updated: [2025-04-01]</p>
 
-        <div className="space-y-6 text-gray-800 leading-relaxed">
-          <p>
-            These Terms of Use (hereinafter referred to as the &quot;Terms&quot;) govern the rights, obligations, responsibilities, and other necessary matters between Passyou (hereinafter referred to as the &quot;Company&quot;) and the user regarding the use of the {APP_NAME} mobile application (hereinafter referred to as the &quot;App&quot;) and related services (including subscription services, collectively referred to as the &quot;Service&quot;).
-          </p>
+      <div className="space-y-6 text-gray-800 leading-relaxed">
+        <p>
+          These Terms of Use (hereinafter referred to as the &quot;Terms&quot;) govern the rights, obligations, responsibilities, and other necessary matters between Passyou (hereinafter referred to as the &quot;Company&quot;) and the user regarding the use of the {APP_NAME} mobile application (hereinafter referred to as the &quot;App&quot;) and related services (including subscription services, collectively referred to as the &quot;Service&quot;).
+        </p>
 
-          <section>
+        <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">Article 1 (Purpose)</h2>
             <p>
               The purpose of these Terms is to define the conditions and procedures necessary for the user to use the services provided by the Company, as well as the rights, obligations, and responsibilities between the Company and the user.
@@ -167,6 +167,18 @@ export default function TermsOfUsePage() {
             <p>These Terms shall apply from [2025-04-01].</p>
           </section>
         </div>
+      </main>
+    </>
+  );
+}
+
+export default function TermsOfUsePage() {
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Suspense fallback={<div>Loading...</div>}>
+          <TermsOfUseContent />
+        </Suspense>
       </main>
     </div>
   )
