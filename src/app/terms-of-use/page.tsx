@@ -1,15 +1,21 @@
 "use client"
 
+import { useSearchParams } from 'next/navigation';
+
 export default function TermsOfUsePage() {
+  const searchParams = useSearchParams();
+  const appNameFromQuery = searchParams.get('app_name');
+  const APP_NAME = appNameFromQuery || "Type it! Korean";
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold mb-6">Korean Typing Terms of Use</h1>
+        <h1 className="text-3xl font-bold mb-6">{APP_NAME} Terms of Use</h1>
         <p className="text-sm text-gray-600 mb-8">Last Updated: [2025-04-01]</p>
 
         <div className="space-y-6 text-gray-800 leading-relaxed">
           <p>
-            These Terms of Use (hereinafter referred to as the &quot;Terms&quot;) govern the rights, obligations, responsibilities, and other necessary matters between Passyou (hereinafter referred to as the &quot;Company&quot;) and the user regarding the use of the Korean Typing mobile application (hereinafter referred to as the &quot;App&quot;) and related services (including subscription services, collectively referred to as the &quot;Service&quot;).
+            These Terms of Use (hereinafter referred to as the &quot;Terms&quot;) govern the rights, obligations, responsibilities, and other necessary matters between Passyou (hereinafter referred to as the &quot;Company&quot;) and the user regarding the use of the {APP_NAME} mobile application (hereinafter referred to as the &quot;App&quot;) and related services (including subscription services, collectively referred to as the &quot;Service&quot;).
           </p>
 
           <section>
@@ -35,7 +41,7 @@ export default function TermsOfUsePage() {
             <h2 className="text-xl font-semibold mt-8 mb-3">Article 3 (Definition of Terms)</h2>
             <p>The definitions of terms used in these Terms are as follows:</p>
             <ol className="list-decimal list-inside space-y-2 mt-2">
-              <li>&quot;Service&quot;: Refers to the Korean Typing App and all related services provided by the Company.</li>
+              <li>&quot;Service&quot;: Refers to the {APP_NAME} App and all related services provided by the Company.</li>
               <li>&quot;User&quot;: Refers to the customer who has entered into a user agreement with the Company according to these Terms and uses the services provided by the Company.</li>
               <li>&quot;Account&quot;: Refers to the combination of characters or numbers selected by the user and granted by the Company for user identification and service use.</li>
               <li>&quot;Paid Service&quot;: Refers to services that the user can use only after paying a separate usage fee to the Company (e.g., subscription services).</li>
