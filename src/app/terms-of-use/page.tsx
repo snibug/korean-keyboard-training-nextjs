@@ -167,7 +167,6 @@ function TermsOfUseContent() {
             <p>These Terms shall apply from [2025-04-01].</p>
           </section>
         </div>
-      </main>
     </>
   );
 }
