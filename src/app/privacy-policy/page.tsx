@@ -1,17 +1,22 @@
 "use client" // Add "use client" directive for using hooks
 
+import { useSearchParams } from 'next/navigation';
+
 export default function PrivacyPolicyPage() {
+  const searchParams = useSearchParams();
+  const appName = searchParams.get('app_name') || "Type it! Korean";
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold mb-6">Korean Typing Privacy Policy</h1>
+        <h1 className="text-3xl font-bold mb-6">{appName} Privacy Policy</h1>
         {/* Updated date format placeholder */}
         <p className="text-sm text-gray-600 mb-8">Last Updated: [2025-04-01]</p>
 
         <div className="space-y-6 text-gray-800 leading-relaxed">
           <p>
             {/* Corrected line 31 */}
-            Passyou (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) values your privacy and is committed to protecting your personal information in compliance with applicable privacy laws and regulations. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Korean Typing application (the &quot;Service&quot;).
+            Passyou (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) values your privacy and is committed to protecting your personal information in compliance with applicable privacy laws and regulations. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our {appName} application (the &quot;Service&quot;).
           </p>
 
           <section>
